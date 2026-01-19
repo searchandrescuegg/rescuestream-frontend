@@ -1,4 +1,4 @@
-FROM oven/bun:1.1 AS base
+FROM oven/bun:1.3 AS base
 WORKDIR /usr/src/app
 
 # install dependencies into temp directory
@@ -22,7 +22,7 @@ COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
 
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN bun test
 # hadolint ignore=DL3059
@@ -39,8 +39,8 @@ COPY --from=prerelease /usr/src/app/package.json .
 # run the app
 USER bun
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 EXPOSE 3000/tcp
 ENTRYPOINT [ "bun", "run", "server.js" ]
