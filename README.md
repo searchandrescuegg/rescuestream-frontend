@@ -1,40 +1,124 @@
-<<<<<<< HEAD
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RescueStream Frontend
+
+A real-time livestream monitoring dashboard for search and rescue operations. Built with Next.js 15+, featuring WebRTC/HLS video playback, broadcaster management, and stream key administration.
+
+## Features
+
+- **Live Stream Grid** - Monitor multiple active broadcasts in real-time with auto-refresh
+- **WebRTC & HLS Playback** - Ultra-low latency WebRTC (WHEP) with automatic HLS fallback
+- **Fullscreen Viewer** - Click any stream to view fullscreen with metadata overlay
+- **Broadcaster Management** - Create, edit, and delete broadcaster profiles
+- **Stream Key Administration** - Generate and manage RTMP stream keys
+- **Google OAuth Authentication** - Secure login via Auth.js
+- **Dark/Light Mode** - System-aware theme switching
+- **API Health Monitoring** - Real-time backend connectivity status
+
+## Tech Stack
+
+- **Framework**: Next.js 15+ (App Router, Server Actions)
+- **Language**: TypeScript 5.x (strict mode)
+- **Styling**: Tailwind CSS 4
+- **UI Components**: shadcn/ui + Radix UI
+- **Icons**: Tabler Icons
+- **Authentication**: Auth.js (NextAuth v5) with Google OAuth
+- **Video**: hls.js, native WebRTC (WHEP)
+- **Data Fetching**: SWR
+- **Package Manager**: Bun
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- [Bun](https://bun.sh/) 1.1+
+- RescueStream API backend running
+- Google OAuth credentials
+
+### Environment Variables
+
+Create a `.env.local` file:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+# Auth.js
+AUTH_SECRET="your-auth-secret"
+AUTH_GOOGLE_ID="your-google-client-id"
+AUTH_GOOGLE_SECRET="your-google-client-secret"
+
+# RescueStream API
+RESCUESTREAM_API_URL="https://api.example.com"
+RESCUESTREAM_API_KEY="your-api-key"
+RESCUESTREAM_API_SECRET="your-api-secret"
+```
+
+### Installation
+
+```bash
+# Install dependencies
+bun install
+
+# Start development server
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Production build
+bun run build
 
-## Learn More
+# Start production server
+bun start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+app/
+├── (auth)/              # Login page
+├── (dashboard)/         # Protected dashboard pages
+│   ├── streams/         # Live stream grid
+│   ├── broadcasters/    # Broadcaster management
+│   ├── stream-keys/     # Stream key management
+│   └── help/            # Help documentation
+├── api/auth/            # Auth.js route handlers
+└── layout.tsx           # Root layout
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+components/
+├── ui/                  # shadcn/ui components
+├── video/               # Stream players (HLS, WebRTC, fullscreen)
+├── broadcasters/        # Broadcaster table, dialogs
+└── stream-keys/         # Stream key table, dialogs
 
-## Deploy on Vercel
+lib/
+├── api/                 # RescueStream API client (HMAC auth)
+├── auth.ts              # Auth.js configuration
+└── utils.ts             # Utilities
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+hooks/                   # Custom React hooks (useStreams, etc.)
+types/                   # TypeScript type definitions
+actions/                 # Server Actions
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
-main
->>>>>>> main
+## Docker
+
+Build and run with Docker:
+
+```bash
+# Build image
+docker build -t rescuestream-frontend .
+
+# Run container
+docker run -p 3000:3000 \
+  -e AUTH_SECRET="your-secret" \
+  -e AUTH_GOOGLE_ID="your-id" \
+  -e AUTH_GOOGLE_SECRET="your-secret" \
+  -e RESCUESTREAM_API_URL="https://api.example.com" \
+  -e RESCUESTREAM_API_KEY="your-key" \
+  -e RESCUESTREAM_API_SECRET="your-secret" \
+  rescuestream-frontend
+```
+
+## License
+
+Private - Search and Rescue GG
