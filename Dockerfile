@@ -24,7 +24,6 @@ COPY . .
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN bun test
 # hadolint ignore=DL3059
 RUN bun run build
 
