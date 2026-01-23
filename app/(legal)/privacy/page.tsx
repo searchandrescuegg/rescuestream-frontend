@@ -15,7 +15,7 @@ export default function PrivacyPolicyPage() {
       </p>
 
       <p>
-        This Privacy Policy describes how searchandrescue.gg (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;)
+        This Privacy Policy describes how rescue.stream (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;)
         collects, uses, and protects your personal information when you use the RescueStream
         application (&quot;Service&quot;).
       </p>
@@ -117,7 +117,7 @@ export default function PrivacyPolicyPage() {
 
       <p>
         <strong>Email:</strong>{" "}
-        <a href="mailto:contact@searchandrescue.gg">contact@searchandrescue.gg</a>
+        <a href="mailto:contact@rescue.stream">contact@rescue.stream</a>
       </p>
     </article>
   );
