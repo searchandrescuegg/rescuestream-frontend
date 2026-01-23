@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { IconCopy, IconLoader, IconCheck } from "@tabler/icons-react"
 import { QRCodeSVG } from "qrcode.react"
 import { toast } from "sonner"
@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { createStreamKey } from "@/actions/stream-keys"
+import { getRtmpIngestUrl } from "@/actions/config"
 import type { Broadcaster, StreamKey } from "@/types"
 
 interface StreamKeyDialogProps {
@@ -45,9 +46,11 @@ export function StreamKeyDialog({
   const [createdKey, setCreatedKey] = useState<StreamKey | null>(null)
   const [copied, setCopied] = useState(false)
   const [copiedRtmp, setCopiedRtmp] = useState(false)
+  const [rtmpIngestUrl, setRtmpIngestUrl] = useState("rtmp://localhost:1935")
 
-  // Get RTMP ingest URL from environment, defaulting to localhost for development
-  const rtmpIngestUrl = process.env.NEXT_PUBLIC_RTMP_INGEST_URL || "rtmp://localhost:1935"
+  useEffect(() => {
+    getRtmpIngestUrl().then(setRtmpIngestUrl)
+  }, [])
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {

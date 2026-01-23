@@ -1,10 +1,13 @@
 "use client"
 
-import { use, useState } from "react"
+import { use, useState, useEffect } from "react"
 import { IconCopy, IconCheck } from "@tabler/icons-react"
 import { toast } from "sonner"
 
+import Image from "next/image"
+
 import { Button } from "@/components/ui/button"
+import { getRtmpIngestUrl } from "@/actions/config"
 
 interface PageProps {
   params: Promise<{ key: string }>
@@ -14,8 +17,12 @@ export default function StreamKeyPage({ params }: PageProps) {
   const { key } = use(params)
   const [copiedKey, setCopiedKey] = useState(false)
   const [copiedRtmp, setCopiedRtmp] = useState(false)
+  const [rtmpIngestUrl, setRtmpIngestUrl] = useState("rtmp://localhost:1935")
 
-  const rtmpIngestUrl = process.env.NEXT_PUBLIC_RTMP_INGEST_URL || "rtmp://localhost:1935"
+  useEffect(() => {
+    getRtmpIngestUrl().then(setRtmpIngestUrl)
+  }, [])
+
   const fullRtmpUrl = `${rtmpIngestUrl}/${key}`
 
   const handleCopyKey = async () => {
@@ -35,6 +42,25 @@ export default function StreamKeyPage({ params }: PageProps) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
+        <div className="flex justify-center">
+          <Image
+            src="/logo.png"
+            alt="RescueStream"
+            width={200}
+            height={50}
+            className="dark:hidden"
+            priority
+          />
+          <Image
+            src="/logo-dark.png"
+            alt="RescueStream"
+            width={200}
+            height={50}
+            className="hidden dark:block"
+            priority
+          />
+        </div>
+
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold">Stream Key</h1>
           <p className="text-sm text-muted-foreground">
