@@ -16,7 +16,7 @@ export default function TermsOfServicePage() {
 
       <p>
         Please read these Terms of Service (&quot;Terms&quot;) carefully before using the RescueStream
-        application (&quot;Service&quot;) operated by searchandrescue.gg (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
+        application (&quot;Service&quot;) operated by rescue.stream (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
       </p>
 
       <p>
@@ -74,7 +74,7 @@ export default function TermsOfServicePage() {
 
       <p>
         The Service and its original content, features, and functionality are owned by
-        searchandrescue.gg and are protected by international copyright, trademark, and
+        rescue.stream and are protected by international copyright, trademark, and
         other intellectual property laws.
       </p>
 
@@ -87,7 +87,7 @@ export default function TermsOfServicePage() {
       <h2>5. Limitation of Liability</h2>
 
       <p>
-        To the maximum extent permitted by law, searchandrescue.gg shall not be liable for
+        To the maximum extent permitted by law, rescue.stream shall not be liable for
         any indirect, incidental, special, consequential, or punitive damages, including but
         not limited to:
       </p>
@@ -158,7 +158,7 @@ export default function TermsOfServicePage() {
 
       <p>
         <strong>Email:</strong>{" "}
-        <a href="mailto:contact@searchandrescue.gg">contact@searchandrescue.gg</a>
+        <a href="mailto:contact@rescue.stream">contact@rescue.stream</a>
       </p>
     </article>
   );

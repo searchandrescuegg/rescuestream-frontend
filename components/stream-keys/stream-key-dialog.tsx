@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { IconCopy, IconLoader, IconCheck } from "@tabler/icons-react"
+import { QRCodeSVG } from "qrcode.react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -43,6 +44,10 @@ export function StreamKeyDialog({
   const [isLoading, setIsLoading] = useState(false)
   const [createdKey, setCreatedKey] = useState<StreamKey | null>(null)
   const [copied, setCopied] = useState(false)
+  const [copiedRtmp, setCopiedRtmp] = useState(false)
+
+  // Get RTMP ingest URL from environment, defaulting to localhost for development
+  const rtmpIngestUrl = process.env.NEXT_PUBLIC_RTMP_INGEST_URL || "rtmp://localhost:1935"
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
@@ -95,6 +100,16 @@ export function StreamKeyDialog({
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const handleCopyRtmp = async () => {
+    if (!createdKey?.key_value) return
+
+    const fullRtmpUrl = `${rtmpIngestUrl}/${createdKey.key_value}`
+    await navigator.clipboard.writeText(fullRtmpUrl)
+    setCopiedRtmp(true)
+    toast.success("RTMP URL copied to clipboard")
+    setTimeout(() => setCopiedRtmp(false), 2000)
+  }
+
   // Show created key view
   if (createdKey?.key_value) {
     return (
@@ -129,9 +144,43 @@ export function StreamKeyDialog({
                 </Button>
               </div>
             </div>
+            <div className="space-y-2">
+              <Label>Full RTMP URL</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={`${rtmpIngestUrl}/${createdKey.key_value}`}
+                  readOnly
+                  className="font-mono text-sm"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={handleCopyRtmp}
+                >
+                  {copiedRtmp ? (
+                    <IconCheck className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <IconCopy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>QR Code</Label>
+              <div className="flex justify-center rounded-lg border bg-white p-4">
+                <QRCodeSVG
+                  value={`${typeof window !== "undefined" ? window.location.origin : ""}/k/${createdKey.key_value}`}
+                  size={160}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                Scan to open a page with the stream key
+              </p>
+            </div>
             <p className="text-sm text-muted-foreground">
-              Use this key with your streaming software (OBS, FFmpeg, etc.) to
-              authenticate your stream.
+              Use the stream key or full RTMP URL with your streaming software
+              (OBS, FFmpeg, etc.) to authenticate your stream.
             </p>
           </div>
           <DialogFooter>

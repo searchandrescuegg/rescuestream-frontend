@@ -82,7 +82,7 @@ AUTH_GOOGLE_ID="your-google-client-id"
 AUTH_GOOGLE_SECRET="your-google-client-secret"
 
 # Auth Allowlist - At least one required
-AUTH_ALLOWED_DOMAINS="searchandrescue.gg"
+AUTH_ALLOWED_DOMAINS="rescue.stream"
 AUTH_ALLOWED_EMAILS=""
 
 # RescueStream API - Defaults work with Docker Compose
