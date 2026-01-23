@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { StreamTile, StreamTileSkeleton } from './stream-tile';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { StreamTile, type StreamTileRef } from './stream-tile';
+import { Loader2 } from 'lucide-react';
 import { FullscreenPlayer } from './fullscreen-player';
 import {
   Pagination,
@@ -21,9 +22,17 @@ interface StreamGridProps {
 
 const PAGE_SIZE = 9;
 
+interface FullscreenState {
+  stream: StreamWithBroadcaster;
+  videoElement: HTMLVideoElement | null;
+  protocol: 'webrtc' | 'hls';
+}
+
 export function StreamGrid({ streams, isLoading }: StreamGridProps) {
   const [page, setPage] = useState(1);
-  const [selectedStream, setSelectedStream] = useState<StreamWithBroadcaster | null>(null);
+  const [fullscreenState, setFullscreenState] = useState<FullscreenState | null>(null);
+  const [isClosingFullscreen, setIsClosingFullscreen] = useState(false);
+  const tileRefs = useRef<Map<string, StreamTileRef>>(new Map());
 
   // Filter to only active streams
   const activeStreams = useMemo(
@@ -37,21 +46,49 @@ export function StreamGrid({ streams, isLoading }: StreamGridProps) {
     page * PAGE_SIZE
   );
 
-  // Calculate grid columns based on stream count
-  const gridCols = useMemo(() => {
+  // Calculate grid size (always square: 1x1, 2x2, 3x3)
+  const gridSize = useMemo(() => {
     const count = pagedStreams.length;
     if (count <= 1) return 1;
     if (count <= 4) return 2;
     return 3;
   }, [pagedStreams.length]);
 
-  // Loading state
+  // Handle tile click - get video element and open fullscreen
+  const handleTileClick = useCallback((stream: StreamWithBroadcaster) => {
+    // Prevent opening fullscreen while closing animation is in progress
+    if (isClosingFullscreen) return;
+
+    const tileRef = tileRefs.current.get(stream.id);
+    if (tileRef) {
+      const videoElement = tileRef.getVideoElement();
+      const protocol = tileRef.getProtocol();
+      setFullscreenState({ stream, videoElement, protocol });
+    }
+  }, [isClosingFullscreen]);
+
+  // Handle fullscreen close
+  const handleFullscreenClose = useCallback(() => {
+    setIsClosingFullscreen(true);
+    setFullscreenState(null);
+    // Allow clicks again after the video has been moved back
+    setTimeout(() => setIsClosingFullscreen(false), 100);
+  }, []);
+
+  // Store tile ref
+  const setTileRef = useCallback((streamId: string, ref: StreamTileRef | null) => {
+    if (ref) {
+      tileRefs.current.set(streamId, ref);
+    } else {
+      tileRefs.current.delete(streamId);
+    }
+  }, []);
+
+  // Loading state - simple centered spinner
   if (isLoading) {
     return (
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <StreamTileSkeleton key={i} />
-        ))}
+      <div className="flex min-h-0 flex-1 items-center justify-center">
+        <Loader2 className="h-16 w-16 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -59,7 +96,7 @@ export function StreamGrid({ streams, isLoading }: StreamGridProps) {
   // Empty state
   if (activeStreams.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
         <VideoIcon className="h-12 w-12 text-muted-foreground" />
         <h3 className="mt-4 text-lg font-semibold">No Active Streams</h3>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -70,26 +107,30 @@ export function StreamGrid({ streams, isLoading }: StreamGridProps) {
   }
 
   return (
-    <>
-      {/* Stream Grid */}
+    <div className="flex min-h-0 flex-1 flex-col">
+      {/* Stream Grid - tiles constrained by both width and height */}
       <div
-        className="grid gap-4"
+        className={`grid min-h-0 flex-1 gap-4 overflow-auto md:overflow-visible ${
+          pagedStreams.length === 1 ? 'content-start' : 'place-content-center'
+        }`}
         style={{
-          gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))`,
+          gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
+          gridTemplateRows: `repeat(${gridSize}, minmax(0, 1fr))`,
         }}
       >
         {pagedStreams.map((stream) => (
           <StreamTile
             key={stream.id}
+            ref={(ref) => setTileRef(stream.id, ref)}
             stream={stream}
-            onClick={() => setSelectedStream(stream)}
+            onClick={() => handleTileClick(stream)}
           />
         ))}
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <Pagination className="mt-6">
+        <Pagination className="mt-4 shrink-0">
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
@@ -120,13 +161,15 @@ export function StreamGrid({ streams, isLoading }: StreamGridProps) {
         </Pagination>
       )}
 
-      {/* Fullscreen View */}
-      {selectedStream && (
+      {/* Fullscreen View - passes the actual video element */}
+      {fullscreenState && (
         <FullscreenPlayer
-          stream={selectedStream}
-          onClose={() => setSelectedStream(null)}
+          stream={fullscreenState.stream}
+          videoElement={fullscreenState.videoElement}
+          protocol={fullscreenState.protocol}
+          onClose={handleFullscreenClose}
         />
       )}
-    </>
+    </div>
   );
 }

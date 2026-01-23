@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
-import { StreamPlayer } from './stream-player';
 import { StreamStatus } from './stream-status';
 import { Button } from '@/components/ui/button';
 import { Cross2Icon } from '@radix-ui/react-icons';
@@ -10,11 +9,19 @@ import type { StreamWithBroadcaster } from '@/types';
 
 interface FullscreenPlayerProps {
   stream: StreamWithBroadcaster;
+  videoElement: HTMLVideoElement | null;
+  protocol: 'webrtc' | 'hls';
   onClose: () => void;
 }
 
-export function FullscreenPlayer({ stream, onClose }: FullscreenPlayerProps) {
-  const [playbackProtocol, setPlaybackProtocol] = useState<'webrtc' | 'hls'>('webrtc');
+export function FullscreenPlayer({
+  stream,
+  videoElement,
+  protocol,
+  onClose,
+}: FullscreenPlayerProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isTransitioning, setIsTransitioning] = useState(true);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -25,9 +32,48 @@ export function FullscreenPlayer({ stream, onClose }: FullscreenPlayerProps) {
     [onClose]
   );
 
+  // Move the video element into fullscreen container
+  useEffect(() => {
+    if (!videoElement || !containerRef.current) return;
+
+    const container = containerRef.current;
+    const originalParent = videoElement.parentElement;
+    const originalNextSibling = videoElement.nextSibling;
+
+    // Store original styles
+    const originalClassName = videoElement.className;
+    const originalMuted = videoElement.muted;
+
+    // Move video to fullscreen container and update styles
+    // We need to directly manipulate the DOM element to move it between containers
+    /* eslint-disable react-hooks/immutability */
+    container.appendChild(videoElement);
+    videoElement.className = 'h-full w-full object-contain';
+    videoElement.muted = false;
+    /* eslint-enable react-hooks/immutability */
+
+    // Small delay to allow CSS transition
+    requestAnimationFrame(() => {
+      setIsTransitioning(false);
+    });
+
+    return () => {
+      // Move video back to original location
+      if (originalParent) {
+        if (originalNextSibling) {
+          originalParent.insertBefore(videoElement, originalNextSibling);
+        } else {
+          originalParent.appendChild(videoElement);
+        }
+        // Restore original styles
+        videoElement.className = originalClassName;
+        videoElement.muted = originalMuted;
+      }
+    };
+  }, [videoElement]);
+
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
-    // Prevent body scroll
     document.body.style.overflow = 'hidden';
 
     return () => {
@@ -43,13 +89,12 @@ export function FullscreenPlayer({ stream, onClose }: FullscreenPlayerProps) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black" onClick={onClose}>
-      {/* Video */}
-      <StreamPlayer
-        urls={stream.urls}
-        muted={false}
-        autoPlay
-        className="h-full w-full object-contain"
-        onProtocolChange={setPlaybackProtocol}
+      {/* Video Container - the video element will be moved here */}
+      <div
+        ref={containerRef}
+        className={`pointer-events-none h-full w-full transition-opacity duration-200 ${
+          isTransitioning ? 'opacity-0' : 'opacity-100'
+        }`}
       />
 
       {/* Close Button */}
@@ -85,7 +130,7 @@ export function FullscreenPlayer({ stream, onClose }: FullscreenPlayerProps) {
               {stream.source_type && (
                 <p>Source: {stream.source_type.toUpperCase()}</p>
               )}
-              <p>Playback: {playbackProtocol === 'webrtc' ? 'WebRTC (low latency)' : 'HLS'}</p>
+              <p>Playback: {protocol === 'webrtc' ? 'WebRTC (low latency)' : 'HLS'}</p>
             </div>
           </div>
           <p className="text-xs text-white/50">Click or press Escape to close</p>

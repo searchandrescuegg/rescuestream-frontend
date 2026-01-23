@@ -1,7 +1,8 @@
 'use client';
 
+import Image from 'next/image';
 import { signIn } from 'next-auth/react';
-import { IconBrandGoogle, IconBroadcast } from '@tabler/icons-react';
+import { IconBrandGoogle } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -20,8 +21,23 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted/50 p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary">
-            <IconBroadcast className="h-6 w-6 text-primary-foreground" />
+          <div className="mx-auto mb-4">
+            <Image
+              src="/logo.png"
+              alt="RescueStream"
+              width={200}
+              height={112}
+              className="h-16 w-auto dark:hidden"
+              priority
+            />
+            <Image
+              src="/logo-dark.png"
+              alt="RescueStream"
+              width={200}
+              height={112}
+              className="hidden h-16 w-auto dark:block"
+              priority
+            />
           </div>
           <CardTitle className="text-2xl font-bold">RescueStream</CardTitle>
           <CardDescription>

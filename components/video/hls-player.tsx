@@ -22,11 +22,18 @@ export function HLSPlayer({
 }: HLSPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
+  const prevSrcRef = useRef<string | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !src) return;
+
+    // Skip reinitialization if the src URL hasn't actually changed
+    if (prevSrcRef.current === src && hlsRef.current) {
+      return;
+    }
+    prevSrcRef.current = src;
 
     // Clean up previous instance
     if (hlsRef.current) {
@@ -96,7 +103,8 @@ export function HLSPlayer({
         hlsRef.current = null;
       }
     };
-  }, [src, autoPlay, onError, onReady]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only reinitialize on src change, not callback changes
+  }, [src, autoPlay]);
 
   return (
     <video

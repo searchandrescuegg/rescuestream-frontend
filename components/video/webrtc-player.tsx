@@ -21,11 +21,18 @@ export function WebRTCPlayer({
 }: WebRTCPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
+  const prevSrcRef = useRef<string | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !src) return;
+
+    // Skip reinitialization if the src URL hasn't actually changed
+    if (prevSrcRef.current === src && pcRef.current) {
+      return;
+    }
+    prevSrcRef.current = src;
 
     let aborted = false;
 
@@ -120,7 +127,8 @@ export function WebRTCPlayer({
         pcRef.current = null;
       }
     };
-  }, [src, autoPlay, onError, onReady]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only reinitialize on src change, not callback changes
+  }, [src, autoPlay]);
 
   return (
     <video
