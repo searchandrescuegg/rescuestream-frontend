@@ -76,7 +76,9 @@ pathDefaults:
   runOnReady: >-
     curl -sf -X POST http://api:8080/webhook/ready
     -H 'Content-Type: application/json'
-    -d '{"path":"$MTX_PATH","source_type":"$MTX_SOURCE_TYPE","source_id":"$MTX_SOURCE_ID"}'
+    -d '{"path":"$MTX_PATH",
+    "source_type":"$MTX_SOURCE_TYPE",
+    "source_id":"$MTX_SOURCE_ID"}'
 
   # Called when a stream is no longer ready (publisher disconnected)
   runOnNotReady: >-
