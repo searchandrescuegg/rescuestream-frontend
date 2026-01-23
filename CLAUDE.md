@@ -11,6 +11,7 @@ Auto-generated from feature plans. Last updated: 2026-01-18
 - N/A (static files in public folder) (004-app-metadata)
 - TypeScript 5.x (strict mode) + Next.js 16.1.3, React 19.2.3, Tailwind CSS, next-themes (005-legal-pages)
 - N/A (static content, no database) (005-legal-pages)
+- TypeScript 5.x (strict mode enabled) + Next.js 16.1.3, React 19.2.3, Tailwind CSS 4, shadcn/ui, @tabler/icons-react, next-themes (006-simple-homepage)
 
 - **Framework**: Next.js 15+ with App Router
 - **Language**: TypeScript 5.x (strict mode)
@@ -93,6 +94,6 @@ bunx --bun shadcn@latest add button dialog table input
 <!-- MANUAL ADDITIONS END -->
 
 ## Recent Changes
+- 006-simple-homepage: Added TypeScript 5.x (strict mode enabled) + Next.js 16.1.3, React 19.2.3, Tailwind CSS 4, shadcn/ui, @tabler/icons-react, next-themes
 - 005-legal-pages: Added TypeScript 5.x (strict mode) + Next.js 16.1.3, React 19.2.3, Tailwind CSS, next-themes
 - 004-app-metadata: Added TypeScript 5.x (strict mode) + Next.js 16.1.3, React 19.2.3
-- 003-docker-compose: Added Docker Compose V2 (YAML 3.x), TypeScript 5.x (frontend) + Docker, Docker Compose, ghcr.io container registry
