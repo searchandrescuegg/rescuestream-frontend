@@ -30,36 +30,91 @@ A real-time livestream monitoring dashboard for search and rescue operations. Bu
 ### Prerequisites
 
 - [Bun](https://bun.sh/) 1.1+
-- RescueStream API backend running
+- [Docker](https://docs.docker.com/get-docker/) and Docker Compose V2
 - Google OAuth credentials
+
+### Quick Start with Docker Compose
+
+The easiest way to run the full stack locally is with Docker Compose, which starts all backend services (PostgreSQL, API, MediaMTX streaming server).
+
+1. **Configure backend services:**
+
+   ```bash
+   cp docker/.env.example docker/.env
+   # Edit docker/.env if needed (defaults work for local development)
+   ```
+
+2. **Start backend services:**
+
+   ```bash
+   docker compose up -d
+   ```
+
+   This starts:
+   - **PostgreSQL 15** on port 5432 - Database with persistent volume
+   - **RescueStream API** on port 8080 - Backend API with HMAC authentication
+   - **MediaMTX** on ports 1935 (RTMP), 8888 (HLS), 8889 (WebRTC) - Streaming server
+
+3. **Configure the frontend:**
+
+   ```bash
+   cp .env.example .env
+   # Edit .env with your Google OAuth credentials
+   ```
+
+4. **Install dependencies and start the frontend:**
+
+   ```bash
+   bun install
+   bun dev
+   ```
+
+5. **Open [http://localhost:3000](http://localhost:3000)** to view the dashboard.
 
 ### Environment Variables
 
-Create a `.env.local` file:
+#### Frontend (.env)
 
 ```bash
-# Auth.js
-AUTH_SECRET="your-auth-secret"
+# Auth.js - Required
+AUTH_SECRET="generate-with-openssl-rand-base64-32"
 AUTH_GOOGLE_ID="your-google-client-id"
 AUTH_GOOGLE_SECRET="your-google-client-secret"
 
-# RescueStream API
-RESCUESTREAM_API_URL="https://api.example.com"
+# Auth Allowlist - At least one required
+AUTH_ALLOWED_DOMAINS="searchandrescue.gg"
+AUTH_ALLOWED_EMAILS=""
+
+# RescueStream API - Defaults work with Docker Compose
+RESCUESTREAM_API_URL="http://localhost:8080"
 RESCUESTREAM_API_KEY="your-api-key"
-RESCUESTREAM_API_SECRET="your-api-secret"
+RESCUESTREAM_API_SECRET="dev-secret-change-in-production"
 ```
 
-### Installation
+#### Backend Services (docker/.env)
 
 ```bash
-# Install dependencies
-bun install
+# PostgreSQL
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=rescuestream
 
-# Start development server
-bun dev
+# API Authentication
+API_SECRET=dev-secret-change-in-production
+
+# MediaMTX WebRTC - Set to your IP for LAN/external access
+MTX_WEBRTCICEHOSTNAT1TO1IPS=localhost
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
+### Testing with Demo Stream
+
+Send a test stream to verify the setup:
+
+```bash
+make demo-stream
+```
+
+This streams a test pattern to the MediaMTX RTMP endpoint. Press Ctrl+C to stop.
 
 ### Build
 
@@ -102,7 +157,35 @@ actions/                 # Server Actions
 
 ## Docker
 
-Build and run with Docker:
+### Development (Full Stack)
+
+Use Docker Compose to run all backend services locally:
+
+```bash
+# Start all services (PostgreSQL, API, MediaMTX)
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop services
+docker compose down
+
+# Stop and remove volumes (reset database)
+docker compose down -v
+```
+
+**Services and Ports:**
+
+| Service    | Port(s)                    | Description                    |
+|------------|----------------------------|--------------------------------|
+| PostgreSQL | 5432                       | Database                       |
+| API        | 8080 (API), 8081 (metrics) | Backend REST API               |
+| MediaMTX   | 1935, 8554, 8888, 8889     | RTMP, RTSP, HLS, WebRTC        |
+
+### Production (Frontend Only)
+
+Build and run the frontend container:
 
 ```bash
 # Build image
@@ -113,6 +196,7 @@ docker run -p 3000:3000 \
   -e AUTH_SECRET="your-secret" \
   -e AUTH_GOOGLE_ID="your-id" \
   -e AUTH_GOOGLE_SECRET="your-secret" \
+  -e AUTH_ALLOWED_DOMAINS="yourdomain.com" \
   -e RESCUESTREAM_API_URL="https://api.example.com" \
   -e RESCUESTREAM_API_KEY="your-key" \
   -e RESCUESTREAM_API_SECRET="your-secret" \
