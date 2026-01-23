@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { IconBrandGoogle } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
@@ -54,7 +55,15 @@ export default function LoginPage() {
             Sign in with Google
           </Button>
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            By signing in, you agree to our terms of service and privacy policy.
+            By signing in, you agree to our{' '}
+            <Link href="/terms" className="underline hover:text-foreground">
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link href="/privacy" className="underline hover:text-foreground">
+              Privacy Policy
+            </Link>
+            .
           </p>
         </CardContent>
       </Card>
