@@ -1,7 +1,7 @@
 # RescueStream Frontend Development Makefile
 
 # STREAM_KEY := sk_qCxOsrbpmkx-5WSqb4BQGcYYGxwibfYC6uo9gXD1ucc
-STREAM_KEY := sk_sBHq-fjuOXNSpU3cmfIZo1iMFloaQpCk21VgfI5vLcE
+STREAM_KEY := abcd
 # RTMP_URL := rtmp://localhost:1935/$(STREAM_KEY)
 RTMP_URL := rtmp://rtmp.rescue.stream/$(STREAM_KEY)
 
