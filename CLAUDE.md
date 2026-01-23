@@ -5,6 +5,8 @@ Auto-generated from feature plans. Last updated: 2026-01-18
 ## Active Technologies
 - TypeScript 5.x (strict mode enabled) + Next.js 16.1.3, next-auth 5.0.0-beta.30, Auth.js, React 19.2.3 (002-auth-allowlist)
 - N/A (allowlists stored in environment variables) (002-auth-allowlist)
+- Docker Compose V2 (YAML 3.x), TypeScript 5.x (frontend) + Docker, Docker Compose, ghcr.io container registry (003-docker-compose)
+- PostgreSQL 15 (containerized), local volumes for persistence (003-docker-compose)
 
 - **Framework**: Next.js 15+ with App Router
 - **Language**: TypeScript 5.x (strict mode)
@@ -87,4 +89,5 @@ bunx --bun shadcn@latest add button dialog table input
 <!-- MANUAL ADDITIONS END -->
 
 ## Recent Changes
+- 003-docker-compose: Added Docker Compose V2 (YAML 3.x), TypeScript 5.x (frontend) + Docker, Docker Compose, ghcr.io container registry
 - 002-auth-allowlist: Added TypeScript 5.x (strict mode enabled) + Next.js 16.1.3, next-auth 5.0.0-beta.30, Auth.js, React 19.2.3

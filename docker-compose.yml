@@ -1,0 +1,98 @@
+---
+# Backend services configuration
+# Copy docker/.env.example to docker/.env and customize as needed
+services:
+  postgres:
+    image: postgres:15
+    env_file:
+      - path: ./docker/.env
+        required: false
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-rescuestream}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: ghcr.io/searchandrescuegg/rescuestream-api:v1.0.1
+    env_file:
+      - path: ./docker/.env
+        required: false
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      # Database
+      DATABASE_URL: >-
+        postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-rescuestream}?sslmode=disable
+
+      # API Authentication - uses HMAC-SHA256 signature authentication.
+      # Clients must send X-API-Key, X-Timestamp, and X-Signature headers.
+      # Signature: HMAC-SHA256("{METHOD}\n{PATH}\n{TIMESTAMP}\n{BODY}", secret)
+      # Generate a secure secret: openssl rand -hex 32
+      API_PORT: "${API_PORT:-8080}"
+      API_SECRET: "${API_SECRET:-dev-secret-change-in-production}"
+
+      # MediaMTX
+      MEDIAMTX_API_URL: "http://mediamtx:9997"
+      MEDIAMTX_PUBLIC_URL: "http://rescuestream.com:8889"
+
+      # Logging
+      LOG_LEVEL: "debug"
+
+      # Metrics
+      METRICS_ENABLED: "true"
+      METRICS_PORT: "8081"
+
+      LOCAL: "true"
+
+      # Tracing
+      TRACING_ENABLED: "false"
+      TRACING_SAMPLERATE: "1.0"
+      TRACING_SERVICE: "rescuestream-api"
+      TRACING_VERSION: "0.0.1"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://lgtm:4317"
+
+      # gRPC (OTLP tracing)
+      GRPC_GO_LOG_VERBOSITY_LEVEL: 99
+      GRPC_GO_LOG_SEVERITY_LEVEL: info
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mediamtx:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  mediamtx:
+    image: ghcr.io/searchandrescuegg/rescuestream-api-mediamtx:latest
+    env_file:
+      - path: ./docker/.env
+        required: false
+    ports:
+      - "8554:8554" # RTSP
+      - "1935:1935" # RTMP ingestion
+      - "8888:8888" # HLS
+      - "8889:8889" # WebRTC HTTP
+      - "8189:8189/udp" # WebRTC ICE/UDP
+      - "9997:9997" # API
+    environment:
+      # WebRTC ICE - set to your server's public IP for external clients
+      MTX_WEBRTCICEHOSTNAT1TO1IPS: "${MTX_WEBRTCICEHOSTNAT1TO1IPS:-localhost}"
+    volumes:
+      - ./docker/mediamtx/mediamtx.yml:/mediamtx.yml
+
+volumes:
+  postgres_data:
