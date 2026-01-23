@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useRef, useImperativeHandle, forwardRef } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { Loader2 } from 'lucide-react';
 import { StreamPlayer } from './stream-player';
 import { StreamStatus } from './stream-status';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,67 +11,98 @@ import type { StreamWithBroadcaster } from '@/types';
 interface StreamTileProps {
   stream: StreamWithBroadcaster;
   onClick?: () => void;
+  style?: React.CSSProperties;
 }
 
-export function StreamTile({ stream, onClick }: StreamTileProps) {
-  const [isLoading, setIsLoading] = useState(true);
+export interface StreamTileRef {
+  getVideoElement: () => HTMLVideoElement | null;
+  getProtocol: () => 'webrtc' | 'hls';
+}
 
-  const broadcasterName = stream.broadcaster?.display_name || 'Unknown Broadcaster';
-  const startedAt = new Date(stream.started_at);
-  const duration = formatDistanceToNow(startedAt, { addSuffix: false });
+export const StreamTile = forwardRef<StreamTileRef, StreamTileProps>(
+  function StreamTile({ stream, onClick, style }, ref) {
+    const [isLoading, setIsLoading] = useState(true);
+    const [playbackProtocol, setPlaybackProtocol] = useState<'webrtc' | 'hls'>('webrtc');
+    const containerRef = useRef<HTMLDivElement>(null);
 
-  return (
-    <div
-      className="group relative aspect-video cursor-pointer overflow-hidden rounded-lg bg-muted"
-      onClick={onClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick?.();
-        }
-      }}
-    >
-      {/* Video Player */}
-      <StreamPlayer
-        urls={stream.urls}
-        muted
-        autoPlay
-        onReady={() => setIsLoading(false)}
-      />
+    // Stable callback reference to prevent unnecessary re-renders
+    const handleReady = useCallback(() => setIsLoading(false), []);
 
-      {/* Loading Skeleton */}
-      {isLoading && (
-        <div className="absolute inset-0 z-10">
-          <Skeleton className="h-full w-full" />
+    const broadcasterName = stream.broadcaster?.display_name || 'Unknown Broadcaster';
+    const startedAt = new Date(stream.started_at);
+    const duration = formatDistanceToNow(startedAt, { addSuffix: false });
+
+    // Expose video element and protocol to parent
+    useImperativeHandle(ref, () => ({
+      getVideoElement: () => {
+        return containerRef.current?.querySelector('video') ?? null;
+      },
+      getProtocol: () => playbackProtocol,
+    }), [playbackProtocol]);
+
+    return (
+      <div
+        ref={containerRef}
+        className="group relative cursor-pointer overflow-hidden rounded-lg bg-muted"
+        style={{ aspectRatio: '16/9', maxHeight: '100%', maxWidth: '100%', ...style }}
+        onClick={onClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick?.();
+          }
+        }}
+      >
+        {/* Video Player */}
+        <StreamPlayer
+          urls={stream.urls}
+          muted
+          autoPlay
+          onReady={handleReady}
+          onProtocolChange={setPlaybackProtocol}
+        />
+
+        {/* Loading Indicator */}
+        {isLoading && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-muted">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        )}
+
+        {/* Status Badge */}
+        <div className="absolute left-2 top-2 z-20">
+          <StreamStatus status={stream.status} />
         </div>
-      )}
 
-      {/* Status Badge */}
-      <div className="absolute left-2 top-2 z-20">
-        <StreamStatus status={stream.status} />
+        {/* Metadata Overlay */}
+        <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/80 to-transparent p-3 pt-8">
+          <p className="truncate text-sm font-medium text-white">
+            {broadcasterName}
+          </p>
+          <p className="text-xs text-white/70">
+            Streaming for {duration}
+          </p>
+        </div>
+
+        {/* Hover Effect */}
+        <div className="absolute inset-0 z-10 bg-black/0 transition-colors group-hover:bg-black/10" />
       </div>
+    );
+  }
+);
 
-      {/* Metadata Overlay */}
-      <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/80 to-transparent p-3 pt-8">
-        <p className="truncate text-sm font-medium text-white">
-          {broadcasterName}
-        </p>
-        <p className="text-xs text-white/70">
-          Streaming for {duration}
-        </p>
-      </div>
+export function StreamTileSkeleton({ style }: { style?: React.CSSProperties }) {
+  // Default size matches a reasonable tile in a 3-column grid
+  const defaultStyle: React.CSSProperties = {
+    width: 320,
+    height: 180,
+    ...style,
+  };
 
-      {/* Hover Effect */}
-      <div className="absolute inset-0 z-10 bg-black/0 transition-colors group-hover:bg-black/10" />
-    </div>
-  );
-}
-
-export function StreamTileSkeleton() {
   return (
-    <div className="relative aspect-video overflow-hidden rounded-lg">
+    <div className="relative overflow-hidden rounded-lg bg-muted" style={defaultStyle}>
       <Skeleton className="h-full w-full" />
       <div className="absolute left-2 top-2">
         <Skeleton className="h-5 w-12" />

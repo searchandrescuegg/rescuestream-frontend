@@ -16,8 +16,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
   title: "RescueStream Dashboard",
   description: "Live stream monitoring dashboard for search and rescue operations",
+  openGraph: {
+    title: "RescueStream Dashboard",
+    description: "Live stream monitoring dashboard for search and rescue operations",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "RescueStream Dashboard",
+    description: "Live stream monitoring dashboard for search and rescue operations",
+  },
 };
 
 export default function RootLayout({

@@ -1,9 +1,9 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import {
-  IconBroadcast,
   IconHelp,
   IconKey,
   IconUsers,
@@ -69,8 +69,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="/streams">
-                <IconBroadcast className="!size-5" />
-                <span className="text-base font-semibold">RescueStream</span>
+                <Image
+                  src="/logo.png"
+                  alt="RescueStream"
+                  width={140}
+                  height={78}
+                  className="h-8 w-auto dark:hidden"
+                  priority
+                />
+                <Image
+                  src="/logo-dark.png"
+                  alt="RescueStream"
+                  width={140}
+                  height={78}
+                  className="hidden h-8 w-auto dark:block"
+                  priority
+                />
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

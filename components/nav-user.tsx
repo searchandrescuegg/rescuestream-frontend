@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { useSession, signOut } from "next-auth/react"
 import {
   IconBrandGoogle,
@@ -85,9 +86,11 @@ export function NavUser() {
                 <>
                   <Avatar className="h-8 w-8 rounded-lg">
                     {user.avatar ? (
-                      <img
+                      <Image
                         src={user.avatar}
                         alt={user.name}
+                        width={32}
+                        height={32}
                         className="aspect-square h-full w-full object-cover"
                         referrerPolicy="no-referrer"
                       />
@@ -118,9 +121,11 @@ export function NavUser() {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   {user.avatar ? (
-                    <img
+                    <Image
                       src={user.avatar}
                       alt={user.name}
+                      width={32}
+                      height={32}
                       className="aspect-square h-full w-full object-cover"
                       referrerPolicy="no-referrer"
                     />
@@ -163,9 +168,11 @@ export function NavUser() {
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16 rounded-lg">
             {user.avatar ? (
-              <img
+              <Image
                 src={user.avatar}
                 alt={user.name}
+                width={64}
+                height={64}
                 className="aspect-square h-full w-full object-cover"
                 referrerPolicy="no-referrer"
               />

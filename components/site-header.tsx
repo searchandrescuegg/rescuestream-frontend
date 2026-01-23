@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
@@ -23,9 +24,26 @@ export function SiteHeader() {
         <SidebarTrigger className="-ml-1" />
         <Separator
           orientation="vertical"
-          className="mx-2 data-[orientation=vertical]:h-4"
+          className="mx-2 hidden data-[orientation=vertical]:h-4 md:block"
         />
-        <h1 className="text-base font-medium">{title}</h1>
+        {/* Logo centered on mobile, title on desktop */}
+        <div className="absolute left-1/2 -translate-x-1/2 md:hidden">
+          <Image
+            src="/logo.png"
+            alt="RescueStream"
+            width={36}
+            height={36}
+            className="block dark:hidden"
+          />
+          <Image
+            src="/logo-dark.png"
+            alt="RescueStream"
+            width={36}
+            height={36}
+            className="hidden dark:block"
+          />
+        </div>
+        <h1 className="hidden text-base font-medium md:block">{title}</h1>
         <div className="ml-auto flex items-center gap-2">
           <ThemeToggle />
         </div>
