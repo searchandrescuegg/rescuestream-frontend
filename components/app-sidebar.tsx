@@ -4,8 +4,10 @@ import * as React from "react"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import {
+  IconFileText,
   IconHelp,
   IconKey,
+  IconShieldLock,
   IconUsers,
   IconVideo,
 } from "@tabler/icons-react"
@@ -47,6 +49,16 @@ const navSecondary = [
     title: "Get Help",
     url: "/help",
     icon: IconHelp,
+  },
+  {
+    title: "Privacy Policy",
+    url: "/privacy",
+    icon: IconShieldLock,
+  },
+  {
+    title: "Terms of Service",
+    url: "/terms",
+    icon: IconFileText,
   },
 ]
 
