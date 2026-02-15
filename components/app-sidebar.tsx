@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import {
   IconFileText,
   IconHelp,
+  IconHistory,
   IconKey,
   IconShieldLock,
   IconUsers,
@@ -41,6 +42,11 @@ const navMain = [
     title: "Stream Keys",
     url: "/stream-keys",
     icon: IconKey,
+  },
+  {
+    title: "Audit Log",
+    url: "/audit-logs",
+    icon: IconHistory,
   },
 ]
 

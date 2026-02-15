@@ -22,7 +22,7 @@ services:
       retries: 5
 
   api:
-    image: ghcr.io/searchandrescuegg/rescuestream-api:v1.0.1
+    image: ghcr.io/searchandrescuegg/rescuestream-api:v1.0.5
     env_file:
       - path: ./docker/.env
         required: false
@@ -62,8 +62,8 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://lgtm:4317"
 
       # gRPC (OTLP tracing)
-      GRPC_GO_LOG_VERBOSITY_LEVEL: 99
-      GRPC_GO_LOG_SEVERITY_LEVEL: info
+      # GRPC_GO_LOG_VERBOSITY_LEVEL: 99
+      # GRPC_GO_LOG_SEVERITY_LEVEL: info
     depends_on:
       postgres:
         condition: service_healthy

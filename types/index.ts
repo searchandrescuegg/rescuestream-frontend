@@ -18,6 +18,14 @@ export type {
   CreateBroadcasterRequest,
   UpdateBroadcasterRequest,
   CreateStreamKeyRequest,
+  // Audit Log Types
+  AuditLogEntry,
+  AuditLogPagination,
+  AuditLogsResponse,
+  AuditLogFilters,
+  AuditLogOutcome,
+  AuditEventType,
+  CreateAuditLogRequest,
 } from './api';
 
 // UI Types
