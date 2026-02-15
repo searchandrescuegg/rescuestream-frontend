@@ -1,4 +1,4 @@
-FROM oven/bun:1.3 AS base
+FROM oven/bun:1.3.8 AS base
 WORKDIR /usr/src/app
 
 # install dependencies into temp directory
