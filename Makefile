@@ -1,9 +1,9 @@
 # RescueStream Frontend Development Makefile
 
-# STREAM_KEY := sk_qCxOsrbpmkx-5WSqb4BQGcYYGxwibfYC6uo9gXD1ucc
-STREAM_KEY := abcd
-# RTMP_URL := rtmp://localhost:1935/$(STREAM_KEY)
-RTMP_URL := rtmp://rtmp.rescue.stream/$(STREAM_KEY)
+STREAM_KEY := sk_zIxRJ_Bc-tIVYbZ-1RBlstl213gkKPo_UZSY6kyr3Ws
+# STREAM_KEY := abcd
+RTMP_URL := rtmp://localhost:1935/$(STREAM_KEY)
+# RTMP_URL := rtmp://rtmp.rescue.stream/$(STREAM_KEY)
 
 .PHONY: help demo-stream demo-stream-stop
 

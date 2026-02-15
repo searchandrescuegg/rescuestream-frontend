@@ -102,3 +102,69 @@ export interface CreateStreamKeyRequest {
   broadcaster_id: string;
   expires_at?: string;
 }
+
+// Audit Log Types
+
+export interface CreateAuditLogRequest {
+  // Required
+  event_type: string;
+
+  // Optional overrides (defaults derived from request context)
+  actor?: string;
+  resource_type?: string;
+  resource_id?: string;
+  request_method?: string;
+  request_path?: string;
+  outcome?: 'success' | 'failure';
+  failure_reason?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  actor: string;
+  action: string;
+  resource_type: string | null;
+  resource_id: string | null;
+  request_method: string;
+  request_path: string;
+  ip_address: string;
+  outcome: 'success' | 'failure';
+  failure_reason: string | null;
+  metadata: Record<string, unknown>;
+  request_id: string | null;
+}
+
+export interface AuditLogPagination {
+  limit: number;
+  offset: number;
+  total: number;
+}
+
+export interface AuditLogsResponse {
+  audit_logs: AuditLogEntry[];
+  pagination: AuditLogPagination;
+}
+
+export interface AuditLogFilters {
+  eventType?: string;
+  actor?: string;
+  resourceType?: string;
+  resourceId?: string;
+  from?: string;
+  to?: string;
+}
+
+export type AuditLogOutcome = 'success' | 'failure';
+
+export type AuditEventType =
+  | 'stream_started'
+  | 'user_login'
+  | 'user_logout'
+  | 'stream_key_created'
+  | 'stream_key_updated'
+  | 'stream_key_deleted'
+  | 'broadcaster_created'
+  | 'broadcaster_updated'
+  | 'broadcaster_deleted';

@@ -11,6 +11,7 @@ import {
   checkAllowlist,
   logAccessDenied,
 } from '@/lib/auth/allowlist';
+import { getRescueStreamClient } from '@/lib/api/client';
 import type { DenyReason } from '@/types/auth';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -98,6 +99,52 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return Response.redirect(new URL('/streams', nextUrl));
       }
       return true;
+    },
+  },
+  events: {
+    async signIn({ user }) {
+      try {
+        const client = getRescueStreamClient();
+        await client.createAuditLog({
+          event_type: 'login',
+          actor: user.email || 'unknown',
+          request_method: 'POST',
+          request_path: '/api/auth/callback/google',
+          outcome: 'success',
+          metadata: {
+            user_name: user.name,
+          },
+        });
+      } catch (error: unknown) {
+        // Log error but don't block sign-in
+        console.error('Failed to create login audit log:', error);
+        if (error instanceof Error) {
+          console.error('Error message:', error.message);
+        }
+      }
+    },
+    async signOut(message) {
+      try {
+        const client = getRescueStreamClient();
+        // Auth.js provides token for JWT strategy, session for database strategy
+        const email =
+          'token' in message
+            ? (message.token?.email as string | undefined)
+            : undefined;
+        await client.createAuditLog({
+          event_type: 'logout',
+          actor: email || 'unknown',
+          request_method: 'POST',
+          request_path: '/api/auth/signout',
+          outcome: 'success',
+        });
+      } catch (error: unknown) {
+        // Log error but don't block sign-out
+        console.error('Failed to create logout audit log:', error);
+        if (error instanceof Error) {
+          console.error('Error message:', error.message);
+        }
+      }
     },
   },
 });

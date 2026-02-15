@@ -43,8 +43,8 @@ export const StreamTile = forwardRef<StreamTileRef, StreamTileProps>(
     return (
       <div
         ref={containerRef}
-        className="group relative cursor-pointer overflow-hidden rounded-lg bg-muted"
-        style={{ aspectRatio: '16/9', maxHeight: '100%', maxWidth: '100%', ...style }}
+        className="group relative h-full w-full max-h-full max-w-full cursor-pointer overflow-hidden rounded-lg bg-muted"
+        style={{ aspectRatio: '16/9', ...style }}
         onClick={onClick}
         role="button"
         tabIndex={0}

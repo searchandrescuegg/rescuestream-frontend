@@ -16,6 +16,9 @@ import type {
   CreateBroadcasterRequest,
   UpdateBroadcasterRequest,
   CreateStreamKeyRequest,
+  AuditLogsResponse,
+  AuditLogEntry,
+  CreateAuditLogRequest,
 } from '@/types';
 
 class RescueStreamClient {
@@ -59,7 +62,9 @@ class RescueStreamClient {
   ): Promise<T> {
     const timestamp = Math.floor(Date.now() / 1000);
     const bodyString = body ? JSON.stringify(body) : '';
-    const signature = this.generateSignature(method, path, timestamp, bodyString);
+    // Extract path without query string for signature (backend expects path only)
+    const pathForSignature = path.split('?')[0];
+    const signature = this.generateSignature(method, pathForSignature, timestamp, bodyString);
 
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -148,6 +153,15 @@ class RescueStreamClient {
 
   async revokeStreamKey(id: string): Promise<void> {
     return this.request<void>('DELETE', `/stream-keys/${id}`);
+  }
+
+  // Audit Logs
+  async listAuditLogs(queryString: string): Promise<AuditLogsResponse> {
+    return this.request<AuditLogsResponse>('GET', `/audit-logs${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async createAuditLog(data: CreateAuditLogRequest): Promise<AuditLogEntry> {
+    return this.request<AuditLogEntry>('POST', '/audit-events', data);
   }
 }
 
